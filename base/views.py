@@ -10,6 +10,8 @@ from .models import Room, Topic, Message,Student
 from .forms import RoomForm, UserForm
 from django.contrib.auth.decorators import login_required
 from .decorators import requires_permission
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.core.exceptions import PermissionDenied
 
 # Create your views here.
 # rooms =[
@@ -17,6 +19,11 @@ from .decorators import requires_permission
 # {'id':2, 'name':"Designe with Erla"},
 # {'id':3, 'name': "Ambra frontend Develop"}
 # ]
+
+def permission(request):
+    return HttpResponse("You don't have permssion")
+
+
 def loginPage(request):
     page = 'login'
     if request.user.is_authenticated:
@@ -148,13 +155,15 @@ def updateRoom(request, pk):
     context = {'form': form}
     return render(request, 'base/room_form.html', context)
 
-@requires_permission('base.add_room_abdalla')
-@login_required(login_url='login')
+@user_passes_test(lambda user: user.has_perm('base.add_room_abdalla'), login_url='permission-denied')
 def deleteRoom(request, pk):
     room = Room.objects.get(id=pk)
     if request.user != room.host:
         return HttpResponse("You are not allowed here")
 
+    if request.user.has_perm('base.add_room_abdalla'):
+        print("user has perm")
+    
     if request.method == "POST":
         room.delete()
         return redirect("home")

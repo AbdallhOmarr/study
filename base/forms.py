@@ -29,7 +29,7 @@ class UserForm(UserCreationForm):
             student = Student.objects.create(user=user, username=user.username)
             permission = Permission.objects.get(codename='add_room_abdalla')
             print(permission)
-            user.user_permissions.add(permission)
+            # user.user_permissions.add(permission)
             user.save()
             student.save()
         return user

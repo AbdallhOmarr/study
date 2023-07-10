@@ -1,8 +1,26 @@
 from django.db import models
+from django.db import models
 from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractUser
 
-# Create your models here.
+class Staff(models.Model):
+    user = models.OneToOneField(User,on_delete=models.CASCADE,primary_key=True)
+    username = models.CharField(max_length=50)    
+    class Meta:
+        permissions = [
+            ('remove_room','user can remove room')
+        ]
 
+class Student(models.Model):
+    user = models.OneToOneField(User,on_delete=models.CASCADE,primary_key=True)
+    username = models.CharField(max_length=50)    
+
+    class Meta:
+        permissions = [
+            ('add_room_abdalla','can add new room')
+        ]
+        
+        
 class Topic(models.Model):
     name = models.CharField(max_length=200)
 

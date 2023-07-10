@@ -6,10 +6,10 @@ from django.db.models import Q
 
 from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponse
-from .models import Room, Topic, Message
+from .models import Room, Topic, Message,Student
 from .forms import RoomForm, UserForm
 from django.contrib.auth.decorators import login_required
-
+from .decorators import requires_permission
 
 # Create your views here.
 # rooms =[
@@ -47,19 +47,18 @@ def logoutUser(request):
     return redirect('home')
 
 
+
 def registerPage(request):
-    form = UserCreationForm
+    form = UserForm()
 
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)
+        form = UserForm(request.POST)
         if form.is_valid():
-            user = form.save(commit=False)
-            user.username = user.username.lower()
-            user.save()
+            user = form.save()
             login(request, user)
             return redirect('home')
         else:
-            messages.error(request, 'a error regitration')
+            messages.error(request, 'An error occurred during registration.')
 
     context = {'form': form}
     return render(request, 'base/login_register.html', context)
@@ -149,7 +148,7 @@ def updateRoom(request, pk):
     context = {'form': form}
     return render(request, 'base/room_form.html', context)
 
-
+@requires_permission('base.add_room_abdalla')
 @login_required(login_url='login')
 def deleteRoom(request, pk):
     room = Room.objects.get(id=pk)
